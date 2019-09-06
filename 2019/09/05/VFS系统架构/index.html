@@ -79,16 +79,17 @@
 
 
 
-<meta name="description" content="Talk is cheap, show me the code.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="孟耘的博客">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+<meta name="description" content="Lustre_Filsystem_Internal这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VFS系统架构">
+<meta property="og:url" content="http://yoursite.com/2019/09/05/VFS系统架构/index.html">
 <meta property="og:site_name" content="孟耘的博客">
-<meta property="og:description" content="Talk is cheap, show me the code.">
+<meta property="og:description" content="Lustre_Filsystem_Internal这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-06T08:08:40.501Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="孟耘的博客">
-<meta name="twitter:description" content="Talk is cheap, show me the code.">
+<meta name="twitter:title" content="VFS系统架构">
+<meta name="twitter:description" content="Lustre_Filsystem_Internal这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。">
 
 
 
@@ -118,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/">
+  <link rel="canonical" href="http://yoursite.com/2019/09/05/VFS系统架构/">
 
 
 
 
 
-  <title>Archive | 孟耘的博客</title>
+  <title>VFS系统架构 | 孟耘的博客</title>
   
 
 
@@ -143,7 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -217,212 +218,155 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/05/VFS系统架构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="孟耘">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="孟耘的博客">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">VFS系统架构</h1>
         
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-05T15:10:55+08:00">
+                2019-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-        
-        Um..! 5 posts in total. Keep on posting.
-      </span>
 
-      
-
-        
-        
-        
-
-        
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
+            
+          
 
-        
+          
+          
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/05/VFS系统架构/" itemprop="url">
-              
-                <span itemprop="name">VFS系统架构</span>
-              
-            </a>
-        
-      </h2>
+          
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-05T15:10:55+08:00" content="2019-09-05">
-          09-05
-        </time>
-      </div>
+          
 
-    </header>
-  </article>
+        </div>
+      </header>
+    
 
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://wiki.lustre.org/images/d/da/Understanding_Lustre_Filesystem_Internals.pdf" target="_blank" rel="noopener">Lustre_Filsystem_Internal</a><br>这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。</p>
+<a id="more"></a>
+<p>#VFS架构</p>
+<p>##VFS数据结构的关联<br>![应用程序调用VFS架构图](../images/VFS Layer.png)<br>上图展示了VFS的各种数据结构如何进行的连接。每个进程维护着文件系统信息fs_struct,和文件信息file_struct。fs_struct主要保存了当前的目录项信息pwd和根目录项信息root。file_struct中维护者一个进程通所有打开文件的一个列表，最大可打开的文件数量等。每个打开的文件在内存中用file结构题。file对象具有f_op和fs_dentry结构题。f_op维护着对各个文件系统的操作函数指针。当读取一个文件的时，通过系统调用sys_read()，其变为file-&gt;f_op-&gt;read()操作。</p>
+<p>##Dentry对象<br>file结构体中另一个字段为f_dentry，其指向一个缓存在dentry缓存（dcache）中的一个dentry对象。VFS在第一次访问一个文件或目录时会为其创建一个dentry对象。例如：对于/home/m/a,其对应4个path组件，/, home, m , a。对应的的，在path的查找过程中会为每个组件创建4个dentry对象。对dentry对象通过其d_info对象与其inode对象关联。</p>
+<p>inode对象存储着一个文件的信息，通过一个独立无二inode数字标识。inode结构体中有许多重要的字段，其中最重要的是1）i_sb，其指向VFS超级快; 2) i_op，其指向inode操作的函数指针列表.如</p>
+<ul>
+<li>create(dir, dentry, mode, nameidata)</li>
+<li>mkdir(dir, dentry, mode)</li>
+<li>lookup(dir, dentry, nameidata)</li>
+</ul>
+<p>##Superblock<br>VFS层定义了一个通用的superblock对象, struct super_block, 其存储着被挂载的文件系统的信息。其中一个特殊的字段s_fs_info，指向一个特定文件系统的superblock信息，其记录着mount和unmount的必要信息。</p>
+<p>文件系统的superblock操作被定义在结构体super_operations中，其初始化发生在我们建立一个in-memory的superblock数据结果在fill_super过程中。值得注意的是，superblock的alloc_inode函数通过底层文件系统的inode分配函数，如ll_alloc_inode实现。当分配一个inode对象时，alloc_inode调用ll_alloc_inode分配特定的inode结果，并嵌入到VFS inode节点中进行返回使用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> struct inode **<span class="title">ll_alloc_inode</span><span class="params">(struct super_block *sb)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ll_inode_info</span> *<span class="title">lli</span>;</span></span><br><span class="line">	...</span><br><span class="line">	<span class="keyword">return</span> &amp;lli-&gt;lli_vfs_inode;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/26/PyTorch-dataset/" itemprop="url">
-              
-                <span itemprop="name">PyTorch dataset</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-08-26T11:16:05+08:00" content="2019-08-26">
-          08-26
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/19/facebook-f4论文/" itemprop="url">
-              
-                <span itemprop="name">facebook-f4论文</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-08-19T11:06:32+08:00" content="2019-08-19">
-          08-19
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/15/Hello-World-0/" itemprop="url">
-              
-                <span itemprop="name">Hello World</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-08-15T19:37:22+08:00" content="2019-08-15">
-          08-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/15/hello-world/" itemprop="url">
-              
-                <span itemprop="name">存储系统设计</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-08-15T19:20:33+08:00" content="2019-08-15">
-          08-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/26/PyTorch-dataset/" rel="next" title="PyTorch dataset">
+                <i class="fa fa-chevron-left"></i> PyTorch dataset
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -430,6 +374,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -635,6 +583,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
