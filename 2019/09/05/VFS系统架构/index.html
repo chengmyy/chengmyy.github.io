@@ -87,7 +87,7 @@
 <meta property="og:description" content="Lustre_Filsystem_Internal这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/09/05/VFS系统架构/VFS_Layer.png">
-<meta property="og:updated_time" content="2019-09-06T08:55:29.052Z">
+<meta property="og:updated_time" content="2019-09-06T09:06:23.014Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="VFS系统架构">
 <meta name="twitter:description" content="Lustre_Filsystem_Internal这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。">
@@ -303,8 +303,7 @@
       
         <p><a href="http://wiki.lustre.org/images/d/da/Understanding_Lustre_Filesystem_Internals.pdf" target="_blank" rel="noopener">Lustre_Filsystem_Internal</a><br>这个文档主要介绍lustre文件系统，但我发现其中对VFS的系统架构讲的非常清楚，VFS作为linux文件系统的中间层，扮演着重要的角色，因此从中整理出VFS的架构介绍。</p>
 <a id="more"></a>
-<h1 id="VFS架构"><a href="#VFS架构" class="headerlink" title="VFS架构"></a>VFS架构</h1><h2 id="VFS数据结构的关联"><a href="#VFS数据结构的关联" class="headerlink" title="VFS数据结构的关联"></a>VFS数据结构的关联</h2><p><img src="/2019/09/05/VFS系统架构/VFS_Layer.png" alt="应用程序调用VFS架构图"></p>
-<p>上图展示了VFS的各种数据结构如何进行的连接。每个进程维护着文件系统信息fs_struct,和文件信息file_struct。fs_struct主要保存了当前的目录项信息pwd和根目录项信息root。file_struct中维护者一个进程通所有打开文件的一个列表，最大可打开的文件数量等。每个打开的文件在内存中用file结构题。file对象具有f_op和fs_dentry结构题。f_op维护着对各个文件系统的操作函数指针。当读取一个文件的时，通过系统调用sys_read()，其变为file-&gt;f_op-&gt;read()操作。</p>
+<h1 id="VFS架构"><a href="#VFS架构" class="headerlink" title="VFS架构"></a>VFS架构</h1><h2 id="VFS数据结构的关联"><a href="#VFS数据结构的关联" class="headerlink" title="VFS数据结构的关联"></a>VFS数据结构的关联</h2><p><img src="/2019/09/05/VFS系统架构/VFS_Layer.png" alt="应用程序调用VFS架构图"><br>上图展示了VFS的各种数据结构如何进行的连接。每个进程维护着文件系统信息fs_struct,和文件信息file_struct。fs_struct主要保存了当前的目录项信息pwd和根目录项信息root。file_struct中维护者一个进程通所有打开文件的一个列表，最大可打开的文件数量等。每个打开的文件在内存中用file结构题。file对象具有f_op和fs_dentry结构题。f_op维护着对各个文件系统的操作函数指针。当读取一个文件的时，通过系统调用sys_read()，其变为file-&gt;f_op-&gt;read()操作。</p>
 <h2 id="Dentry对象"><a href="#Dentry对象" class="headerlink" title="Dentry对象"></a>Dentry对象</h2><p>file结构体中另一个字段为f_dentry，其指向一个缓存在dentry缓存（dcache）中的一个dentry对象。VFS在第一次访问一个文件或目录时会为其创建一个dentry对象。例如：对于/home/m/a,其对应4个path组件，/, home, m , a。对应的的，在path的查找过程中会为每个组件创建4个dentry对象。对dentry对象通过其d_info对象与其inode对象关联。</p>
 <p>inode对象存储着一个文件的信息，通过一个独立无二inode数字标识。inode结构体中有许多重要的字段，其中最重要的是1）i_sb，其指向VFS超级快; 2) i_op，其指向inode操作的函数指针列表.如</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create(dir, dentry, mode, nameidata)</span><br><span class="line">mkdir(dir, dentry, mode)</span><br><span class="line">lookup(dir, dentry, nameidata)</span><br></pre></td></tr></table></figure>
@@ -346,6 +345,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/24/level-db-源码阅读-一-初识level-db/" rel="prev" title="level-db 源码阅读(四),Arena">
+                level-db 源码阅读(四),Arena <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -422,7 +425,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

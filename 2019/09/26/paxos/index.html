@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="sotrage,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -79,18 +79,20 @@
 
 
 
-<meta name="description" content="本文对 Facebook f4存储系统进行分析。">
-<meta name="keywords" content="sotrage">
+<meta name="description" content="引言本文介绍了分布式系统中的经典算法Paxos。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="facebook-f4论文">
-<meta property="og:url" content="http://yoursite.com/2019/08/19/facebook-f4论文/index.html">
+<meta property="og:title" content="paxos">
+<meta property="og:url" content="http://yoursite.com/2019/09/26/paxos/index.html">
 <meta property="og:site_name" content="孟耘的博客">
-<meta property="og:description" content="本文对 Facebook f4存储系统进行分析。">
+<meta property="og:description" content="引言本文介绍了分布式系统中的经典算法Paxos。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-30T10:25:20.721Z">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/paxos/base-paxos.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/paxos/paxos-eg1.png">
+<meta property="og:updated_time" content="2019-09-30T10:20:22.150Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="facebook-f4论文">
-<meta name="twitter:description" content="本文对 Facebook f4存储系统进行分析。">
+<meta name="twitter:title" content="paxos">
+<meta name="twitter:description" content="引言本文介绍了分布式系统中的经典算法Paxos。">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/26/paxos/base-paxos.png">
 
 
 
@@ -120,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/08/19/facebook-f4论文/">
+  <link rel="canonical" href="http://yoursite.com/2019/09/26/paxos/">
 
 
 
 
 
-  <title>facebook-f4论文 | 孟耘的博客</title>
+  <title>paxos | 孟耘的博客</title>
   
 
 
@@ -233,7 +235,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/19/facebook-f4论文/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/paxos/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="孟耘">
@@ -250,7 +252,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">facebook-f4论文</h1>
+          <h1 class="post-title" itemprop="name headline">paxos</h1>
         
 
         <div class="post-meta">
@@ -262,8 +264,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-19T11:06:32+08:00">
-                2019-08-19
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-26T11:39:26+08:00">
+                2019-09-26
               </time>
             
 
@@ -300,24 +302,46 @@
       
 
       
-        <p>本文对 Facebook f4存储系统进行分析。</p>
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>本文介绍了分布式系统中的经典算法Paxos。</p>
 <a id="more"></a>
-<p>文章链接：<a href="https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-muralidhar.pdf" target="_blank" rel="noopener">f4: Facebook’s Warm BLOB Storage System</a></p>
-<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><h1 id="Warm存储"><a href="#Warm存储" class="headerlink" title="Warm存储"></a>Warm存储</h1><h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h2 id="温度区域的存在"><a href="#温度区域的存在" class="headerlink" title="温度区域的存在"></a>温度区域的存在</h2><h2 id="温度区域的划分"><a href="#温度区域的划分" class="headerlink" title="温度区域的划分"></a>温度区域的划分</h2><ul>
-<li>对于一个数据温度区域，需要确定两件事：<ol>
-<li>如何区别Warm数据和Hot数据</li>
-<li>什么时候是安全得将数据移动到Warm存储</li>
-</ol>
+<h1 id="Basic-Paxos"><a href="#Basic-Paxos" class="headerlink" title="Basic Paxos"></a>Basic Paxos</h1><h2 id="算法的简易描述"><a href="#算法的简易描述" class="headerlink" title="算法的简易描述"></a>算法的简易描述</h2><p><img src="/2019/09/26/paxos/base-paxos.png" alt="Paxos算法伪代码"></p>
+<ol>
+<li><p>选择一个 Proposal ID n, 可采用时间戳+Sever ID生成。（Prepare过程）</p>
 </li>
-<li>采用near-worst-case请求频繁去决定如何在Hot存储和Warm存储上划出界线。比如f4采用的4TB磁盘可以到最大的IOPS为80，因此warm存储吞吐量为20 IOPS/TB。</li>
-<li>从图中看出，9种数据类型中7种数据类型的吞吐量在1周内变为Warm存储的能力。对于Photo，花费近3个月的时间将吞吐量降低到Warm存储能力下；对于Profile photo文件，需要大约一年的时间。</li>
-<li>对于BLOB类型的删除率，其大多数删除操作是对young BLOBs，而一旦BLOB的请求率降低到Warm存储的阈值时，删除率是非常低。</li>
-<li>因此，对于9种数据类型中的7种，1个月是安全的时间段划分hot和warm内容。对于photo，采用3个月为阈值。对于Profile photos，不将其移动到warm存储。</li>
-</ul>
-<h2 id="Warm内容通常是较大和增长的"><a href="#Warm内容通常是较大和增长的" class="headerlink" title="Warm内容通常是较大和增长的"></a>Warm内容通常是较大和增长的</h2><ul>
-<li>以3个月为间隔，分别分析了9-6个月前，6-3个月前，3个月至今Warm对象占比，我们发现Warm占到整体对象的绝大数，对于9-6个前，80%的对象是warm对象。对于最新的时间段，89%的对象是warm对象。</li>
-</ul>
-<h1 id="BLOB存储系统设计"><a href="#BLOB存储系统设计" class="headerlink" title="BLOB存储系统设计"></a>BLOB存储系统设计</h1>
+<li><p>Proposer像所有Acceptors广播Prepare(n)请求。(Prepare过程)</p>
+</li>
+<li><p>Acceptor 比较n和minProposal，如过 n &gt; minProposal， minProposal = n，并且将acceptedProposal 和 acceptedValue返回, 并承若不回接受任何比n小的proposal。否则不返回。（Promised过程）</p>
+</li>
+<li><p>Proposer 如果接收到超过半数的返回，如果发现有acceptedValue返回，则必须将所有回复中最大的acceptedProposal的acceptedValue作为本次提案的Value,否则以任意值作为Value。（Accept过程)</p>
+</li>
+<li><p>Proposer 广播Accept(n, value）到所有服务器。(Accept过程)</p>
+</li>
+<li><p>Acceptor接收到Accept(n, value)时，比较 n 与 minProposal。 如果 n &gt;= minProposal, 则设置acceptedProposal = minProposal = n， 设置acceptValue = Value， 然后返回minProposal。否则直接返回minProposal.（Accepted过程)</p>
+</li>
+<li><p>Proposer 当接受到大多数的的responses时，如果发现有返回的minProposal &gt; n，则goto 第1步，重新选择proposal number 进行Prepare操作。</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. Paxos中每个节点是对等的，既可以Proposal，也可以Accept。</span><br><span class="line">2. Acceptors必须在持久性存储中记录minProposal, acceptedProposal, acceptedValue.</span><br><span class="line">3. Proposer得到多数派的Promise后，可以随意选择一个多数派广播Accept请求，不一定需要把请求发送给应答的Acceptor。</span><br></pre></td></tr></table></figure>
+
+<h2 id="几种场景"><a href="#几种场景" class="headerlink" title="几种场景"></a>几种场景</h2><p>图中P代表PrePare阶段, A代表Accept阶段。 3.1代表Proposal-ID, 3代表时间戳，1代表S1服务器。</p>
+<h3 id="实例一"><a href="#实例一" class="headerlink" title="实例一"></a>实例一</h3><p><img src="/2019/09/26/paxos/paxos-eg1.png" alt="Paxos实例一"></p>
+<p>图中P3.1被多数Accept，然后S4和S5在P4.5发现有acceptedValue返回，从而Y被忽略，学习X值.</p>
+<h3 id="实例二"><a href="#实例二" class="headerlink" title="实例二"></a>实例二</h3><h3 id="Paxos如何从确定一个值到确定多个值"><a href="#Paxos如何从确定一个值到确定多个值" class="headerlink" title="Paxos如何从确定一个值到确定多个值"></a>Paxos如何从确定一个值到确定多个值</h3><p>Base Paxos主要解决分布式系统中如何确定一个值。在原文中，Lamport描述Paxos的必须的满足的条件为：</p>
+<ol>
+<li>Only a value that has been proposed may be chosen</li>
+<li>Only a single value is chosen, and</li>
+<li>A process never learns that a value has been chosen unless it actually<br>has been.</li>
+</ol>
+<p>那么在存储系统中，我们如何通过一个值确定多个值呢。<a href="https://mp.weixin.qq.com/s?__biz=MzI4NDMyNTU2Mw==&mid=2247483695&idx=1&sn=91ea422913fc62579e020e941d1d059e#rd" target="_blank" rel="noopener">微信自研生产级paxos类库PhxPaxos实现原理介绍</a>这篇文章讲解了如何将Paxos运用到存储系统中。基本的思想是一个Paxos实例可以确定一个值，一个连续递增的Paxos实例就可以确定一系列值，从而可以描述存储系统的一系列变化。具体实现可以参考前面连接。</p>
+<h1 id="Multi-Paxos"><a href="#Multi-Paxos" class="headerlink" title="Multi-Paxos"></a>Multi-Paxos</h1><p>Multi-Paxos和 basic Paxos相比，确定了唯一的Proposer,也可以称为Leader, Proposal只能由Leader发起，从而不需要进行Prepare阶段。<br>Multi-Paxos主要是出于性能考虑，解决basic paxos中的活锁与减少四次网络来回到两个网络来回。<br>Multi-Paxos的Leader选举一般为运行一次Basic-Paxos过程。</p>
+<p>参考连接：</p>
+<ol>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzI4NDMyNTU2Mw==&mid=2247483695&idx=1&sn=91ea422913fc62579e020e941d1d059e#rd" target="_blank" rel="noopener">微信自研生产级paxos类库PhxPaxos实现原理介绍</a></li>
+<li><a href="https://github.com/Tencent/phxpaxos" target="_blank" rel="noopener">phxpaxos-github-code</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/31780743" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/31780743</a></li>
+<li><a href="https://www.infoq.cn/article/wechat-paxosstore-paxos-algorithm-protocol" target="_blank" rel="noopener">https://www.infoq.cn/article/wechat-paxosstore-paxos-algorithm-protocol</a></li>
+</ol>
+
       
     </div>
     
@@ -332,12 +356,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/sotrage/" rel="tag"># sotrage</a>
-          
-        </div>
-      
 
       
       
@@ -347,8 +365,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/15/Hello-World-0/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2019/09/25/c-一些基础归纳/" rel="next" title="c++一些基础归纳">
+                <i class="fa fa-chevron-left"></i> c++一些基础归纳
               </a>
             
           </div>
@@ -357,8 +375,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/26/PyTorch-dataset/" rel="prev" title="PyTorch dataset">
-                PyTorch dataset <i class="fa fa-chevron-right"></i>
+              <a href="/2019/09/27/LevelDB源码阅读-五-Open过程/" rel="prev" title="LevelDB源码阅读(五):Open过程">
+                LevelDB源码阅读(五):Open过程 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -482,7 +500,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘要"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">2.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">3.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Warm存储"><span class="nav-number">4.</span> <span class="nav-text">Warm存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">4.1.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#温度区域的存在"><span class="nav-number">4.2.</span> <span class="nav-text">温度区域的存在</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#温度区域的划分"><span class="nav-number">4.3.</span> <span class="nav-text">温度区域的划分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Warm内容通常是较大和增长的"><span class="nav-number">4.4.</span> <span class="nav-text">Warm内容通常是较大和增长的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BLOB存储系统设计"><span class="nav-number">5.</span> <span class="nav-text">BLOB存储系统设计</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Basic-Paxos"><span class="nav-number">2.</span> <span class="nav-text">Basic Paxos</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#算法的简易描述"><span class="nav-number">2.1.</span> <span class="nav-text">算法的简易描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#几种场景"><span class="nav-number">2.2.</span> <span class="nav-text">几种场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实例一"><span class="nav-number">2.2.1.</span> <span class="nav-text">实例一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例二"><span class="nav-number">2.2.2.</span> <span class="nav-text">实例二</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Paxos如何从确定一个值到确定多个值"><span class="nav-number">2.2.3.</span> <span class="nav-text">Paxos如何从确定一个值到确定多个值</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-Paxos"><span class="nav-number">3.</span> <span class="nav-text">Multi-Paxos</span></a></li></ol></div>
             
 
           </div>

@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="sotrage,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -79,18 +79,17 @@
 
 
 
-<meta name="description" content="本文对 Facebook f4存储系统进行分析。">
-<meta name="keywords" content="sotrage">
+<meta name="description" content="Talk is cheap, show me the code.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="facebook-f4论文">
-<meta property="og:url" content="http://yoursite.com/2019/08/19/facebook-f4论文/index.html">
+<meta property="og:title" content="level-db 源码阅读(二),arena内存管理">
+<meta property="og:url" content="http://yoursite.com/2019/09/24/level-db-源码阅读-二-arena内存管理/index.html">
 <meta property="og:site_name" content="孟耘的博客">
-<meta property="og:description" content="本文对 Facebook f4存储系统进行分析。">
+<meta property="og:description" content="Talk is cheap, show me the code.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-30T10:25:20.721Z">
+<meta property="og:updated_time" content="2019-09-24T02:59:06.519Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="facebook-f4论文">
-<meta name="twitter:description" content="本文对 Facebook f4存储系统进行分析。">
+<meta name="twitter:title" content="level-db 源码阅读(二),arena内存管理">
+<meta name="twitter:description" content="Talk is cheap, show me the code.">
 
 
 
@@ -120,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/08/19/facebook-f4论文/">
+  <link rel="canonical" href="http://yoursite.com/2019/09/24/level-db-源码阅读-二-arena内存管理/">
 
 
 
 
 
-  <title>facebook-f4论文 | 孟耘的博客</title>
+  <title>level-db 源码阅读(二),arena内存管理 | 孟耘的博客</title>
   
 
 
@@ -233,7 +232,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/19/facebook-f4论文/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/24/level-db-源码阅读-二-arena内存管理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="孟耘">
@@ -250,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">facebook-f4论文</h1>
+          <h1 class="post-title" itemprop="name headline">level-db 源码阅读(二),arena内存管理</h1>
         
 
         <div class="post-meta">
@@ -262,8 +261,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-19T11:06:32+08:00">
-                2019-08-19
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-24T10:59:06+08:00">
+                2019-09-24
               </time>
             
 
@@ -300,24 +299,7 @@
       
 
       
-        <p>本文对 Facebook f4存储系统进行分析。</p>
-<a id="more"></a>
-<p>文章链接：<a href="https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-muralidhar.pdf" target="_blank" rel="noopener">f4: Facebook’s Warm BLOB Storage System</a></p>
-<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><h1 id="Warm存储"><a href="#Warm存储" class="headerlink" title="Warm存储"></a>Warm存储</h1><h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h2 id="温度区域的存在"><a href="#温度区域的存在" class="headerlink" title="温度区域的存在"></a>温度区域的存在</h2><h2 id="温度区域的划分"><a href="#温度区域的划分" class="headerlink" title="温度区域的划分"></a>温度区域的划分</h2><ul>
-<li>对于一个数据温度区域，需要确定两件事：<ol>
-<li>如何区别Warm数据和Hot数据</li>
-<li>什么时候是安全得将数据移动到Warm存储</li>
-</ol>
-</li>
-<li>采用near-worst-case请求频繁去决定如何在Hot存储和Warm存储上划出界线。比如f4采用的4TB磁盘可以到最大的IOPS为80，因此warm存储吞吐量为20 IOPS/TB。</li>
-<li>从图中看出，9种数据类型中7种数据类型的吞吐量在1周内变为Warm存储的能力。对于Photo，花费近3个月的时间将吞吐量降低到Warm存储能力下；对于Profile photo文件，需要大约一年的时间。</li>
-<li>对于BLOB类型的删除率，其大多数删除操作是对young BLOBs，而一旦BLOB的请求率降低到Warm存储的阈值时，删除率是非常低。</li>
-<li>因此，对于9种数据类型中的7种，1个月是安全的时间段划分hot和warm内容。对于photo，采用3个月为阈值。对于Profile photos，不将其移动到warm存储。</li>
-</ul>
-<h2 id="Warm内容通常是较大和增长的"><a href="#Warm内容通常是较大和增长的" class="headerlink" title="Warm内容通常是较大和增长的"></a>Warm内容通常是较大和增长的</h2><ul>
-<li>以3个月为间隔，分别分析了9-6个月前，6-3个月前，3个月至今Warm对象占比，我们发现Warm占到整体对象的绝大数，对于9-6个前，80%的对象是warm对象。对于最新的时间段，89%的对象是warm对象。</li>
-</ul>
-<h1 id="BLOB存储系统设计"><a href="#BLOB存储系统设计" class="headerlink" title="BLOB存储系统设计"></a>BLOB存储系统设计</h1>
+        
       
     </div>
     
@@ -332,12 +314,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/sotrage/" rel="tag"># sotrage</a>
-          
-        </div>
-      
 
       
       
@@ -347,8 +323,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/15/Hello-World-0/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2019/09/24/level-db-源码阅读-二-varint的秘密/" rel="next" title="level-db 源码阅读(二),varint的秘密">
+                <i class="fa fa-chevron-left"></i> level-db 源码阅读(二),varint的秘密
               </a>
             
           </div>
@@ -357,8 +333,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/26/PyTorch-dataset/" rel="prev" title="PyTorch dataset">
-                PyTorch dataset <i class="fa fa-chevron-right"></i>
+              <a href="/2019/09/24/level-db-源码阅读-四-AtomicPointer/" rel="prev" title="level-db 源码阅读(三),AtomicPointer">
+                level-db 源码阅读(三),AtomicPointer <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -411,17 +387,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -472,22 +439,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘要"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">2.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">3.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Warm存储"><span class="nav-number">4.</span> <span class="nav-text">Warm存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">4.1.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#温度区域的存在"><span class="nav-number">4.2.</span> <span class="nav-text">温度区域的存在</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#温度区域的划分"><span class="nav-number">4.3.</span> <span class="nav-text">温度区域的划分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Warm内容通常是较大和增长的"><span class="nav-number">4.4.</span> <span class="nav-text">Warm内容通常是较大和增长的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BLOB存储系统设计"><span class="nav-number">5.</span> <span class="nav-text">BLOB存储系统设计</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
